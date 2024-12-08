@@ -95,17 +95,48 @@ SELECT u.id, cp.id, cp.credit_amount, cp.price FROM "USER" u JOIN "CREDIT_PACKAG
     -- 1. 將用戶`李燕容`新增為教練，並且年資設定為2年（提示：使用`李燕容`的email ，取得 `李燕容` 的 `id` ）
     -- 2. 將用戶`肌肉棒子`新增為教練，並且年資設定為2年
     -- 3. 將用戶`Q太郎`新增為教練，並且年資設定為2年
+INSERT INTO "COACH" (user_id, experience_years)
+SELECT id, 2 FROM "USER" WHERE email IN (
+    'lee2000@hexschooltest.io',
+    'muscle@hexschooltest.io',
+    'starplatinum@hexschooltest.io'
+);
 
 -- 3-2. 新增：承1，為三名教練新增專長資料至 `COACH_LINK_SKILL` ，資料需求如下：
     -- 1. 所有教練都有 `重訓` 專長
     -- 2. 教練`肌肉棒子` 需要有 `瑜伽` 專長
     -- 3. 教練`Q太郎` 需要有 `有氧運動` 與 `復健訓練` 專長
+INSERT INTO "COACH_LINK_SKILL" (coach_id, skill_id)
+SELECT c.id, s.id FROM "COACH" c
+INNER JOIN "USER" u ON c.user_id = u.id
+INNER JOIN "SKILL" s ON s."name" = '重訓';
+
+INSERT INTO "COACH_LINK_SKILL" (coach_id, skill_id)
+SELECT c.id, s.id FROM "COACH" c
+JOIN "USER" u ON c.user_id = u.id AND u.email = 'muscle@hexschooltest.io'
+JOIN "SKILL" s ON s."name" = '瑜伽';
+
+INSERT INTO "COACH_LINK_SKILL" (coach_id, skill_id)
+SELECT c.id, s.id FROM "COACH" c
+JOIN "USER" u ON c.user_id = u.id AND u.email = 'starplatinum@hexschooltest.io'
+JOIN "SKILL" s ON s."name" IN ('有氧運動', '復健訓練');
 
 -- 3-3 修改：更新教練的經驗年數，資料需求如下：
     -- 1. 教練`肌肉棒子` 的經驗年數為3年
     -- 2. 教練`Q太郎` 的經驗年數為5年
+UPDATE "COACH" c
+SET experience_years = 3
+FROM "USER" u
+WHERE u.id = c.user_id AND u.email = 'muscle@hexschooltest.io';
+
+UPDATE "COACH" c
+SET experience_years = 5
+FROM "USER" u
+WHERE u.id = c.user_id AND u.email = 'starplatinum@hexschooltest.io';
 
 -- 3-4 刪除：新增一個專長 空中瑜伽 至 SKILL 資料表，之後刪除此專長。
+INSERT INTO "SKILL" (name) VALUES ('空中瑜伽');
+DELETE FROM "SKILL" WHERE name = '空中瑜伽';
 
 
 --  ████████  █████   █    █   █ 
